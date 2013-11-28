@@ -1123,7 +1123,7 @@ static ssize_t mdss_fb_set_ce(struct device *dev, struct device_attribute *attr,
 
 }
 
-static ssize_t mdss_fb_set_cabc(struct device *dev, struct device_attribute *attr, const char *buf, size_t len)
+static ssize_t mdss_fb_set_ce(struct device *dev, struct device_attribute *attr, const char *buf, size_t len)
 {
 	struct fb_info *fbi = dev_get_drvdata(dev);
 	struct msm_fb_data_type *mfd = (struct msm_fb_data_type *)fbi->par;
@@ -1134,7 +1134,7 @@ static ssize_t mdss_fb_set_cabc(struct device *dev, struct device_attribute *att
 	int param = 0;
 
 
-    rc = kstrtoint(buf, 10, &param);
+	rc = kstrtoint(buf, 10, &param);
 	if (rc) {
 		pr_err("kstrtoint failed. rc=%d\n", rc);
 		return rc;
@@ -1145,17 +1145,17 @@ static ssize_t mdss_fb_set_cabc(struct device *dev, struct device_attribute *att
 		pr_err("no panel connected!\n");
 		return len;
 	}
-		ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
+	ctrl = container_of(pdata, struct mdss_dsi_ctrl_pdata,
 				panel_data);
 	if (!ctrl) {
 		pr_info("not available\n");
 		return len;
 	}
 
-	cabc_state = param;
+	ce_state = param;
 
 	if (param > 9){
-		cabc_resume = true;
+		ce_resume = true;
 		return len;
 	}
 
@@ -1170,29 +1170,29 @@ static ssize_t mdss_fb_set_cabc(struct device *dev, struct device_attribute *att
 		return len;
 	}
 
-	if (!first_set_bl){
-		first_cabc_state = param;
+ 	if (!first_set_bl){
+		first_ce_state = param;
 		pr_err("%s, wait first_set_bl\n", __func__);
 		return len;
 	}
 
-	pr_err("guorui_###_%s, set_cabc_cmd: %d\n", __func__, param);
+	pr_err("tsx_###_%s, set_ce_cmd: %d\n", __func__, param);
 
-	if (cabc_resume){
-		pr_err("%s abandon cabc cmd from app set\n", __func__);
-		cabc_resume = false;
+	if (ce_resume){
+		pr_err("%s abandon ce cmd from app set\n", __func__);
+		ce_resume = false;
 		return len;
 	}
 
 	switch(param) {
 		case 0x1:
-			if (ctrl->cabc_on_cmds.cmd_cnt){
-				mdss_dsi_panel_cmds_send(ctrl, &ctrl->cabc_on_cmds, CMD_REQ_COMMIT);
+			if (ctrl->ce_on_cmds.cmd_cnt){
+				mdss_dsi_panel_cmds_send(ctrl, &ctrl->ce_on_cmds, CMD_REQ_COMMIT);
 			}
 			break;
 		case 0x2:
-			if (ctrl->cabc_off_cmds.cmd_cnt){
-				mdss_dsi_panel_cmds_send(ctrl, &ctrl->cabc_off_cmds, CMD_REQ_COMMIT);
+			if (ctrl->ce_off_cmds.cmd_cnt){
+				mdss_dsi_panel_cmds_send(ctrl, &ctrl->ce_off_cmds, CMD_REQ_COMMIT);
 			}
 			break;
 		default:
@@ -1200,10 +1200,25 @@ static ssize_t mdss_fb_set_cabc(struct device *dev, struct device_attribute *att
 			break;
 
 	}
-	printk("guorui ##### cabc over ###\n");
+	printk("tsx ##### ce over ###\n");
 	return len;
 
 }
+
+static struct fb_ops mdss_fb_ops = {
+	.owner = THIS_MODULE,
+	.fb_open = mdss_fb_open,
+	.fb_release = mdss_fb_release,
+	.fb_check_var = mdss_fb_check_var,	/* vinfo check */
+	.fb_set_par = mdss_fb_set_par,	/* set the video mode */
+	.fb_blank = mdss_fb_blank,	/* blank display */
+	.fb_pan_display = mdss_fb_pan_display,	/* pan display */
+	.fb_ioctl_v2 = mdss_fb_ioctl,	/* perform fb specific ioctl */
+#ifdef CONFIG_COMPAT
+	.fb_compat_ioctl_v2 = mdss_fb_compat_ioctl,
+#endif
+	.fb_mmap = mdss_fb_mmap,
+};
 
 static ssize_t mdss_fb_set_srgb(struct device *dev, struct device_attribute *attr, const char *buf, size_t len)
 {
@@ -5595,6 +5610,15 @@ exit:
 
 static int mdss_fb_ioctl(struct fb_info *info, unsigned int cmd,
 			 unsigned long arg, struct file *file)
+{
+	if (!info || !info->par)
+		return -EINVAL;
+
+	return mdss_fb_do_ioctl(info, cmd, arg, file);
+}
+
+
+struct fb_info *msm_fb_get_writeback_fb(void)
 {
 	if (!info || !info->par)
 		return -EINVAL;
