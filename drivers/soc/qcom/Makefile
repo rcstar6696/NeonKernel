@@ -120,3 +120,6 @@ obj-y += serial_num.o
 subdir-ccflags-y += \
 	-Wno-ignored-attributes \
 	-Wno-gcc-compat
+
+obj-$(CONFIG_STATE_NOTIFIER) += state_notifier.o
+
