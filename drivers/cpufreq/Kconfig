@@ -304,6 +304,13 @@ config SUSPEND_BOOST_STUNE_LEVEL
 	  accepted for testing purposes. A value of 0 disables SchedTune
 	  boosting for this level.
 
+config CPU_INPUT_BOOST_MDSS_TIMEOUT
+	int "MDSS general boost interaction timeout"
+	default "5000"
+	help
+	  Timeout in milliseconds to prevent general boosting on MDSS frame
+	  updates when interaction does not occur within this value.
+
 endif
 
 comment "CPU frequency scaling drivers"
