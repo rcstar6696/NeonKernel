@@ -1032,8 +1032,8 @@ QDF_STATUS sch_process_pre_beacon_ind(tpAniSirGlobal pMac, tpSirMsgQ limMsg,
 						   psessionEntry, reason);
 		} else
 			pe_err("can not send beacon for PEER session entry");
-			}
-			break;
+		}
+		break;
 
 	default:
 		pe_err("Error-PE has Receive PreBeconGenIndication when System is in %d role",

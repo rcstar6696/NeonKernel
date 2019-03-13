@@ -51,12 +51,12 @@ Module.symvers
 /vmlinuz
 /System.map
 /Module.markers
-
+/build.sh
 #
 # Debian directory (make deb-pkg)
 #
 /debian/
-
+/out/
 #
 # tar directory (make tar*-pkg)
 #

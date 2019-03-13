@@ -63,6 +63,8 @@
 #include "cds_concurrency.h"
 #include "nan_datapath.h"
 
+#define NO_SESSION 0xff
+
 static void __lim_init_scan_vars(tpAniSirGlobal pMac)
 {
 	pMac->lim.gLimUseScanModeForLearnMode = 1;
@@ -2554,4 +2556,3 @@ QDF_STATUS lim_update_ext_cap_ie(tpAniSirGlobal mac_ctx,
 	(*local_ie_len) += driver_ext_cap.num_bytes;
 	return QDF_STATUS_SUCCESS;
 }
-
