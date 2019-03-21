@@ -59,8 +59,6 @@ obj-$(CONFIG_MSM_THERMAL_SIMPLE) += msm_thermal_simple.o
 
 CFLAGS_msm_thermal.o += $(call cc-disable-warning,strlcpy-strlcat-size)
 
-CFLAGS_msm_thermal.o += $(call cc-disable-warning,strlcpy-strlcat-size)
-
 #TODO: remove me b/62058353
 subdir-ccflags-y += \
 	-Wno-parentheses-equality \
